@@ -1,0 +1,841 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>R.S. Bhandari Solar | Pro Invoice System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            background: #eef2f8;
+            padding: 24px 16px;
+        }
+
+        /* ----- ENTRY PANEL ----- */
+        .entry-panel {
+            max-width: 1280px;
+            margin: 0 auto 40px;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.12);
+            padding: 28px 24px;
+            transition: all 0.2s;
+        }
+
+        h2 {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: 800;
+            color: #0f172a;
+            border-left: 5px solid #f97316;
+            padding-left: 18px;
+            margin-bottom: 28px;
+            letter-spacing: -0.2px;
+        }
+
+        .responsive-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .form-card {
+            flex: 1 1 260px;
+            background: #fafcff;
+            border-radius: 24px;
+            padding: 18px 18px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid #eef2f6;
+        }
+
+        .form-card label {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #2c3e50;
+            letter-spacing: 0.6px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid #e2edf2;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: white;
+            transition: 0.2s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #f97316;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+        }
+
+        /* items styling */
+        .items-wrapper {
+            margin: 12px 0 16px;
+        }
+
+        .item-block {
+            background: #ffffff;
+            border: 1px solid #eef2f6;
+            border-radius: 28px;
+            padding: 22px 20px;
+            margin-bottom: 18px;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        }
+
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 18px;
+        }
+
+        .item-grid > div label {
+            font-size: 10px;
+            font-weight: 800;
+            color: #475569;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .btn-remove-item {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: #fee2e2;
+            color: #b91c1c;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-add {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 44px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 8px 0 20px;
+            transition: 0.2s;
+        }
+
+        .btn-generate {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 44px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        /* INVOICE PREVIEW AREA */
+        .invoice-preview-area {
+            display: none;
+            background: #eef2f8;
+            min-height: 90vh;
+            padding: 24px 16px 48px;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .action-toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 32px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .action-btn {
+            padding: 10px 24px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            background: white;
+            color: #1e293b;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            border: none;
+            font-size: 0.9rem;
+        }
+
+        .action-btn.print {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .action-btn.whatsapp {
+            background: #25D366;
+            color: white;
+        }
+
+        /* ----- INVOICE CARD (NO EXTRANEOUS BORDERS, PERFECT ALIGN) ----- */
+        .invoice-single-container {
+            background: white;
+            width: 100%;
+            max-width: 210mm;
+            margin: 0 auto;
+            box-shadow: 0 20px 35px -12px rgba(0,0,0,0.25);
+            border: none;          /* no outer box border — clean */
+        }
+
+        .invoice-content {
+            padding: 10mm 12mm;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+
+        /* company header */
+        .company-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .brand h1 {
+            font-size: clamp(20px, 5vw, 26px);
+            font-weight: 800;
+            color: #0a0f1c;
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.25;
+        }
+
+        .gst-line {
+            font-size: 10px;
+            line-height: 1.45;
+            color: #2c3e44;
+        }
+
+        .tax-invoice-badge {
+            font-weight: 800;
+            font-size: 14px;
+            border: 2px solid #1e293b;
+            padding: 6px 14px;
+            letter-spacing: 1px;
+            background: #fff7ed;
+        }
+
+        .invoice-meta {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            border-top: 1px solid #aaa;
+            border-bottom: 1px solid #aaa;
+            padding: 8px 0;
+            margin-bottom: 18px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* address grid - clean */
+        .address-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border: 1px solid #aaa;
+            margin-bottom: 24px;
+        }
+
+        .address-col {
+            padding: 12px 12px;
+            font-size: 11.5px;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .address-col:first-child {
+            border-right: 1px solid #aaa;
+        }
+
+        .addr-title {
+            font-weight: 800;
+            text-decoration: underline;
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        /* ========== TABLE FIX: perfect alignment & clean borders ========== */
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11.5px;
+            margin-bottom: 18px;
+        }
+
+        .items-table th,
+        .items-table td {
+            border: 1px solid #8f9bb3;
+            padding: 9px 6px;
+            vertical-align: middle;
+        }
+
+        .items-table th {
+            background: #f1f5f9;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        /* align numeric columns properly */
+        .items-table td:nth-child(3),  /* Qty */
+        .items-table td:nth-child(4),  /* Rate */
+        .items-table td:nth-child(5),  /* Tax Amt */
+        .items-table td:nth-child(6) { /* Total */
+            text-align: right;
+        }
+
+        /* first two columns (Sno, Particulars) left align */
+        .items-table td:nth-child(1),
+        .items-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        .items-table th:nth-child(3), .items-table th:nth-child(4),
+        .items-table th:nth-child(5), .items-table th:nth-child(6) {
+            text-align: center;
+        }
+
+        .subtotal-row td {
+            font-weight: 800;
+            background: #fff4e6;
+            border-top: 2px solid #000;
+        }
+        .subtotal-row td:first-child, .subtotal-row td:nth-child(2) {
+            font-weight: 800;
+        }
+
+        /* bottom split layout */
+        .bottom-split {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-top: 8px;
+        }
+
+        .terms-style {
+            flex: 1.2;
+            min-width: 180px;
+            font-size: 10px;
+            line-height: 1.45;
+        }
+
+        .amount-panel {
+            flex: 1;
+            background: #fffaf3;
+            padding: 14px 14px;
+            border-radius: 16px;
+            font-size: 11px;
+            border: 1px solid #ffe5c4;
+        }
+
+        .calc-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            flex-wrap: wrap;
+        }
+
+        .total-strong {
+            border-top: 2px solid #1e293b;
+            border-bottom: 2px solid #1e293b;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 8px 0;
+            margin: 8px 0;
+        }
+
+        .words-block {
+            border: 1px solid #d4d4d4;
+            background: #fffff5;
+            padding: 8px 10px;
+            font-size: 10px;
+            margin-top: 12px;
+            border-radius: 12px;
+        }
+
+        .signature-footer {
+            margin-top: 28px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .sign-box {
+            text-align: center;
+            width: 200px;
+        }
+
+        .signature-image {
+            max-width: 140px;
+            max-height: 70px;
+            margin-bottom: 8px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            object-fit: contain;
+        }
+
+        /* responsive */
+        @media (max-width: 680px) {
+            .entry-panel {
+                padding: 18px;
+            }
+            .item-grid {
+                grid-template-columns: 1fr;
+            }
+            .address-grid {
+                grid-template-columns: 1fr;
+            }
+            .address-col:first-child {
+                border-right: none;
+                border-bottom: 1px solid #aaa;
+            }
+            .invoice-content {
+                padding: 6mm 8mm;
+            }
+            .items-table th, .items-table td {
+                padding: 6px 3px;
+                font-size: 9.5px;
+            }
+        }
+
+        /* NO EXTRA BOX in print: remove any outer border box completely */
+        @media print {
+            body {
+                background: white;
+                margin: 0;
+                padding: 0;
+            }
+            .entry-panel, .action-toolbar {
+                display: none !important;
+            }
+            .invoice-preview-area {
+                display: block !important;
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .invoice-single-container {
+                box-shadow: none;
+                border: none;
+                margin: 0 auto;
+                width: 100%;
+            }
+            .invoice-content {
+                padding: 8mm 10mm;
+            }
+            .tax-invoice-badge {
+                border: 2px solid black;
+            }
+        }
+
+        .success-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #10b981;
+            color: white;
+            padding: 12px 22px;
+            border-radius: 40px;
+            display: none;
+            z-index: 1100;
+            font-weight: 600;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div id="successMessage" class="success-message"></div>
+
+<div id="entryPanel" class="entry-panel">
+    <h2>☀️ R.S. Bhandari Solar · Tax Invoice</h2>
+    
+    <div class="responsive-grid">
+        <div class="form-card">
+            <label>🧾 Invoice Number</label>
+            <input type="text" id="invNumber" value="INV-101">
+            <label style="margin-top: 14px;">📅 Invoice Date</label>
+            <input type="date" id="invDate" value="2026-04-26">
+        </div>
+        <div class="form-card">
+            <label>👤 Customer Name</label>
+            <input type="text" id="custName" placeholder="Customer Name" value="SAHIL SATISH KAPSE">
+            <label>📍 Address</label>
+            <textarea id="custAddr" rows="2" placeholder="Full address">Deo peth Washim</textarea>
+            <label style="margin-top: 6px;">📞 WhatsApp / Mobile No</label>
+            <input type="tel" id="custMobile" placeholder="XXXXXXXXXX" value="9850590822">
+        </div>
+        <div class="form-card">
+            <label>💰 Amount Received (₹)</label>
+            <input type="number" id="receivedAmt" value="0" step="any" placeholder="0.00">
+            <div style="margin-top: 14px; font-size:12px; background:#f0f9fe; border-radius:20px; padding:6px 12px;">🔁 Balance due auto-calculated</div>
+        </div>
+    </div>
+
+    <div id="itemsDynamicList" class="items-wrapper">
+        <!-- sample items with proper alignment example: two rows as per typical invoice -->
+        <div class="item-block">
+            <button class="btn-remove-item" onclick="this.closest('.item-block').remove()">✕</button>
+            <div class="item-grid">
+                <div><label>🔧 Description / Product</label><input type="text" class="itemDesc" value="Hero"></div>
+                <div><label>📦 Qty</label><input type="text" class="itemQty" value="1"></div>
+                <div><label>💰 Rate (₹)</label><input type="number" step="any" class="itemRate" value="8900"></div>
+                <div><label>📊 Tax %</label><input type="number" step="any" class="itemTax" value="5"></div>
+            </div>
+        </div>
+        <div class="item-block">
+            <button class="btn-remove-item" onclick="this.closest('.item-block').remove()">✕</button>
+            <div class="item-grid">
+                <div><label>🔧 Description / Product</label><input type="text" class="itemDesc" value="Honda"></div>
+                <div><label>📦 Qty</label><input type="text" class="itemQty" value="1"></div>
+                <div><label>💰 Rate (₹)</label><input type="number" step="any" class="itemRate" value="5700"></div>
+                <div><label>📊 Tax %</label><input type="number" step="any" class="itemTax" value="4"></div>
+            </div>
+        </div>
+    </div>
+    <button class="btn-add" onclick="addNewProduct()">➕ Add More Items</button>
+    <button class="btn-generate" onclick="generateCompleteInvoice()">✨ Generate Bill & Preview</button>
+    <div class="warning-note" style="background:#fef3e2; border-radius:30px; font-size:12px; text-align:center; margin-top:16px; padding:8px;">💡 Print dialog > "Save as PDF" gives perfect PDF. No extra boxes. Alignment fixed.</div>
+</div>
+
+<div id="invoicePreviewArea" class="invoice-preview-area">
+    <div class="action-toolbar">
+        <button class="action-btn" onclick="backToEdit()">✏️ Edit Bill</button>
+        <button class="action-btn print" onclick="printInvoicePDF()">📑 Save as PDF / Print</button>
+        <button class="action-btn whatsapp" id="whatsappBtn" onclick="shareWhatsAppMsg()">💬 WhatsApp Share</button>
+    </div>
+    <div id="invoiceContainer" style="background: white; width: 100%; max-width: 210mm; margin: 0 auto;"></div>
+</div>
+
+<script>
+    // SIGNATURE PATH (adjust if needed, but leaving functional)
+    const SIGNATURE_IMG = "./rs final sign.png";   // if image exists it shows else graceful fallback
+
+    function showToast(msg, isError = false) {
+        const toast = document.getElementById('successMessage');
+        toast.textContent = msg;
+        toast.style.backgroundColor = isError ? '#dc2626' : '#10b981';
+        toast.style.display = 'block';
+        setTimeout(() => { toast.style.display = 'none'; }, 2800);
+    }
+
+    // robust number to words
+    function numberToWordsIndian(amount) {
+        if (isNaN(amount) || amount <= 0) return "Zero Rupees Only";
+        const num = Math.floor(amount);
+        const ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        function convertToWords(n) {
+            if (n === 0) return '';
+            if (n < 20) return ones[n] + ' ';
+            return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '') + ' ';
+        }
+        let str = '';
+        const crore = Math.floor(num / 10000000);
+        if (crore > 0) str += convertToWords(crore) + 'Crore ';
+        const lakh = Math.floor((num % 10000000) / 100000);
+        if (lakh > 0) str += convertToWords(lakh) + 'Lakh ';
+        const thousand = Math.floor((num % 100000) / 1000);
+        if (thousand > 0) str += convertToWords(thousand) + 'Thousand ';
+        const hundred = Math.floor((num % 1000) / 100);
+        if (hundred > 0) str += convertToWords(hundred) + 'Hundred ';
+        const remainder = num % 100;
+        if (remainder > 0) {
+            if (num > 100 && remainder > 0) str += 'and ';
+            str += convertToWords(remainder);
+        }
+        str = str.trim().replace(/\s+/g, ' ');
+        return str + (str ? ' Rupees Only' : 'Zero Rupees Only');
+    }
+
+    function addNewProduct() {
+        const container = document.getElementById('itemsDynamicList');
+        const newBlock = document.createElement('div');
+        newBlock.className = 'item-block';
+        newBlock.innerHTML = `
+            <button class="btn-remove-item" onclick="this.closest('.item-block').remove()">✕</button>
+            <div class="item-grid">
+                <div><label>🔧 Description</label><input type="text" class="itemDesc" placeholder="Product / Service"></div>
+                <div><label>📦 Qty</label><input type="text" class="itemQty" value="1"></div>
+                <div><label>💰 Rate (₹)</label><input type="number" step="any" class="itemRate" value="0"></div>
+                <div><label>📊 Tax %</label><input type="number" step="any" class="itemTax" value="5"></div>
+            </div>
+        `;
+        container.appendChild(newBlock);
+    }
+
+    function getItemRows() {
+        const descs = document.querySelectorAll('.itemDesc');
+        const qtys = document.querySelectorAll('.itemQty');
+        const rates = document.querySelectorAll('.itemRate');
+        const taxPercents = document.querySelectorAll('.itemTax');
+        let items = [];
+        for (let i = 0; i < descs.length; i++) {
+            let qty = parseFloat(qtys[i].value) || 0;
+            let rate = parseFloat(rates[i].value) || 0;
+            let taxPercent = parseFloat(taxPercents[i].value) || 0;
+            let taxable = qty * rate;
+            let taxAmt = taxable * (taxPercent / 100);
+            let total = taxable + taxAmt;
+            items.push({
+                desc: descs[i].value.trim() || "Item",
+                qtyDisplay: qtys[i].value,
+                qtyNum: qty,
+                rate: rate,
+                taxPercent: taxPercent,
+                taxable: taxable,
+                taxAmount: taxAmt,
+                total: total
+            });
+        }
+        return items;
+    }
+
+    function buildInvoiceHTML() {
+        const invNumber = document.getElementById('invNumber').value.trim() || "INV-001";
+        let invDate = document.getElementById('invDate').value;
+        if (!invDate) invDate = new Date().toLocaleDateString('en-CA');
+        const customerName = document.getElementById('custName').value.trim() || "Customer";
+        const customerAddress = document.getElementById('custAddr').value.trim() || "Washim";
+        const customerMobile = document.getElementById('custMobile').value.trim() || "";
+        const receivedAmount = parseFloat(document.getElementById('receivedAmt').value) || 0;
+
+        const items = getItemRows();
+        if (items.length === 0) {
+            alert("⚠️ Please add at least one product/service.");
+            return null;
+        }
+
+        let totalQty = 0, totalTaxable = 0, totalTax = 0, grandTotal = 0;
+        items.forEach(it => {
+            totalQty += it.qtyNum;
+            totalTaxable += it.taxable;
+            totalTax += it.taxAmount;
+            grandTotal += it.total;
+        });
+
+        // Build rows with proper alignment
+        let tableRows = '';
+        items.forEach((it, idx) => {
+            tableRows += `
+                <tr>
+                    <td style="text-align:center">${idx+1}</td>
+                    <td><strong>${escapeHtml(it.desc)}</strong></td>
+                    <td style="text-align:center">${escapeHtml(it.qtyDisplay)}</td>
+                    <td style="text-align:right">₹ ${it.rate.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                    <td style="text-align:right">₹ ${it.taxAmount.toFixed(2)} (${it.taxPercent}%)</td>
+                    <td style="text-align:right">₹ ${it.total.toLocaleString('en-IN', {minimumFractionDigits:2})}</td>
+                </tr>
+            `;
+        });
+
+        // GST slab wise split
+        let taxSlabMap = new Map();
+        items.forEach(it => { 
+            let p = it.taxPercent;
+            taxSlabMap.set(p, (taxSlabMap.get(p) || 0) + it.taxAmount);
+        });
+        let breakdownHtml = '';
+        for (let [taxPerc, totalTaxAmt] of taxSlabMap.entries()) {
+            let halfRate = taxPerc / 2;
+            let halfAmt = totalTaxAmt / 2;
+            breakdownHtml += `<div class="calc-row"><span>CGST @ ${halfRate.toFixed(2)}%</span><span>₹ ${halfAmt.toFixed(2)}</span></div>`;
+            breakdownHtml += `<div class="calc-row"><span>SGST @ ${halfRate.toFixed(2)}%</span><span>₹ ${halfAmt.toFixed(2)}</span></div>`;
+        }
+        if (breakdownHtml === "") breakdownHtml = '<div class="calc-row"><span>No Tax</span><span>₹ 0.00</span></div>';
+
+        // signature handling
+        let signatureBlock = '';
+        if (SIGNATURE_IMG && SIGNATURE_IMG !== "") {
+            signatureBlock = `<img src="${SIGNATURE_IMG}" class="signature-image" alt="Authorized Signatory" onerror="this.style.display='none'; this.parentElement.innerHTML+='<div style=\\'font-size:9px; color:gray;\\'>Authorized Signatory<br>R.S. Bhandari Solar</div>';">`;
+        }
+        signatureBlock += `<div>Authorized Signatory</div><div style="font-size:9px; color:#555;">R.S. Bhandari Solar Energy</div>`;
+
+        const balanceDue = grandTotal - receivedAmount;
+
+        return `
+            <div class="invoice-single-container">
+                <div class="invoice-content">
+                    <div class="company-header">
+                        <div class="brand">
+                            <h1>R.S. Bhandari Solar Energy Solutions</h1>
+                            <div class="gst-line"><b>GSTIN</b> 27BXPBP1277F1ZG &nbsp;| 📞 9422939036<br>📍 Samoysar, Jain Colony, Near Dighe Farm, Pusad, Washim, Maharashtra</div>
+                        </div>
+                        <div class="tax-invoice-badge">TAX INVOICE</div>
+                    </div>
+                    <div class="invoice-meta">
+                        <span>Invoice No: <strong>${escapeHtml(invNumber)}</strong></span>
+                        <span>Date: <strong>${escapeHtml(invDate)}</strong></span>
+                    </div>
+                    <div class="address-grid">
+                        <div class="address-col">
+                            <span class="addr-title">Bill To</span>
+                            R.S. Bhandari Solar Energy<br> GST: 27BXPBP1277F1ZG<br> Washim, Maharashtra<br> MO: 9422939036
+                        </div>
+                        <div class="address-col">
+                            <span class="addr-title">Ship To / Customer</span>
+                            <b>${escapeHtml(customerName.toUpperCase())}</b><br>${escapeHtml(customerAddress)}<br><b>Mobile:</b> ${escapeHtml(customerMobile)}
+                        </div>
+                    </div>
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th>#</th><th>Particulars</th><th>Qty</th><th>Rate(₹)</th><th>Tax Amt</th><th>Total(₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRows}
+                        </tbody>
+                        <tfoot>
+                            <tr class="subtotal-row">
+                                <td colspan="2"><strong>Subtotal</strong></td>
+                                <td style="text-align:center"><strong>${totalQty}</strong></td>
+                                <td></td>
+                                <td style="text-align:center"><strong>₹ ${totalTax.toFixed(2)}</strong></td>
+                                <td style="text-align:right"><strong>₹ ${grandTotal.toLocaleString('en-IN', {minimumFractionDigits:2})}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <div class="bottom-split">
+                        <div class="terms-style">
+                            <b>📌 Terms:</b><br>1. Goods once sold not returnable.<br>2. Jurisdiction: Washim, MH.<br>3. E. & O.E.
+                        </div>
+                        <div class="amount-panel">
+                            <div class="calc-row"><span>Taxable Amount</span><span>₹ ${totalTaxable.toLocaleString('en-IN', {minimumFractionDigits:2})}</span></div>
+                            ${breakdownHtml}
+                            <div class="total-strong"><span>💰 Total Amount</span><span>₹ ${grandTotal.toLocaleString('en-IN', {minimumFractionDigits:2})}</span></div>
+                            <div class="calc-row"><span>💵 Received</span><span>₹ ${receivedAmount.toLocaleString('en-IN', {minimumFractionDigits:2})}</span></div>
+                            <div class="calc-row"><span>⚖️ Balance Due</span><span>₹ ${balanceDue.toLocaleString('en-IN', {minimumFractionDigits:2})}</span></div>
+                            <div class="words-block"><b>Amount in words:</b> ${numberToWordsIndian(grandTotal)}</div>
+                        </div>
+                    </div>
+                    <div class="signature-footer">
+                        <div class="sign-box">
+                            ${signatureBlock}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function generateCompleteInvoice() {
+        const fullInvoice = buildInvoiceHTML();
+        if (!fullInvoice) return;
+        document.getElementById('invoiceContainer').innerHTML = fullInvoice;
+        document.getElementById('entryPanel').style.display = 'none';
+        document.getElementById('invoicePreviewArea').style.display = 'flex';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        showToast("✅ Invoice ready | No extra boxes | perfect alignment", false);
+    }
+
+    function backToEdit() {
+        document.getElementById('entryPanel').style.display = 'block';
+        document.getElementById('invoicePreviewArea').style.display = 'none';
+    }
+
+    // PRINT: clean PDF with no border glitch
+    function printInvoicePDF() {
+        const invoiceHtmlContent = buildInvoiceHTML();
+        if (!invoiceHtmlContent) return;
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>R.S. Bhandari Solar Invoice</title>
+                <meta charset="UTF-8">
+                <style>
+                    * { margin:0; padding:0; box-sizing:border-box; }
+                    body { font-family: 'Segoe UI', Arial, sans-serif; background: white; padding: 20px; }
+                    .invoice-single-container { max-width: 210mm; margin: 0 auto; background: white; }
+                    .invoice-content { padding: 10mm; }
+                    .company-header { display: flex; justify-content: space-between; flex-wrap:wrap; margin-bottom: 16px; }
+                    .brand h1 { font-size: 24px; font-family: 'Times New Roman', serif; }
+                    .tax-invoice-badge { border: 2px solid black; padding: 5px 15px; font-weight: bold; }
+                    .invoice-meta { display: flex; justify-content: space-between; border-top: 1px solid #aaa; border-bottom: 1px solid #aaa; padding: 8px 0; margin-bottom: 16px; }
+                    .address-grid { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid #aaa; margin-bottom: 20px; }
+                    .address-col { padding: 10px; font-size: 12px; }
+                    .address-col:first-child { border-right: 1px solid #aaa; }
+                    .addr-title { font-weight: bold; text-decoration: underline; display: block; margin-bottom: 5px; }
+                    .items-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 18px; }
+                    .items-table th, .items-table td { border: 1px solid #8f9bb3; padding: 8px 5px; text-align: right; }
+                    .items-table th { background: #f1f5f9; text-align: center; }
+                    .items-table td:first-child, .items-table td:nth-child(2) { text-align: left; }
+                    .subtotal-row td { background: #fff4e6; font-weight: bold; }
+                    .bottom-split { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 12px; }
+                    .amount-panel { background: #fffaf3; padding: 12px; border-radius: 8px; flex:1; }
+                    .total-strong { border-top: 2px solid black; border-bottom: 2px solid black; font-weight: bold; padding: 6px 0; margin: 6px 0; }
+                    .words-block { border: 1px solid #ccc; padding: 6px; margin-top: 10px; }
+                    .signature-footer { display: flex; justify-content: flex-end; margin-top: 24px; }
+                    .sign-box { text-align: center; width: 180px; }
+                </style>
+            </head>
+            <body>
+                ${invoiceHtmlContent}
+                <script>window.onload = ()=> { setTimeout(()=>{ window.print(); setTimeout(()=>window.close(),800); },400); }<\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+        showToast("📄 Print dialog ready → Save as PDF", false);
+    }
+
+    function shareWhatsAppMsg() {
+        let phone = document.getElementById('custMobile').value.replace(/\D/g, '');
+        if (!phone) { alert("❌ Customer mobile number required for WhatsApp"); return; }
+        if (!phone.startsWith('91')) phone = '91' + phone;
+        const custName = document.getElementById('custName').value.trim() || "Customer";
+        const items = getItemRows();
+        let totalAmt = items.reduce((sum, i) => sum + i.total, 0).toFixed(2);
+        const invNo = document.getElementById('invNumber').value.trim();
+        const msg = `Hi ${custName},%0AThank you for choosing R.S. Bhandari Solar Energy.%0A📄 Invoice No: ${invNo}%0A💰 Total Amount: ₹ ${totalAmt}%0A📅 Date: ${document.getElementById('invDate').value}%0AKindly find the PDF attachment (via print). For queries call 9422939036.%0A- R.S. Bhandari Solar`;
+        window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+        showToast("WhatsApp opened! Please attach invoice PDF (use save as PDF)", false);
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // set default date if empty
+    if (!document.getElementById('invDate').value) {
+        document.getElementById('invDate').valueAsDate = new Date();
+    }
+</script>
+</body>
+</html>
